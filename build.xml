@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <project name="jenkinsUT_ANT" default="all" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
+
+     <property name="src.path" value="${basedir}/src"/>
+     <property name="build.path" value="${basedir}/build"/>
+     <property name="test.path" value="${basedir}/test"/>
+     
+ 	 <property name="bin.dir" value="${basedir}/bin" />
+     <property name="lib.dir.junit" value="${basedir}/lib/junit" />
+	 <property name="lib.dir.jacoco" value="${basedir}/lib/jacoco" />
+	 <property name="report.dir" value="${basedir}/report" />
+	 <property name="report.dir.coverage" value="${report.dir}/jacoco" />
+	 <property name="report.dir.junit" value = "${report.dir}/junit" />
+	 
+  	 <property name="result.dir.jacoco" value="${report.dir}/jacoco/result" />
+	 <property name="result.bininstr.dir" value="${result.dir.jacoco}/classes-instr" />
+	 <property name="result.exec.file" value="${result.dir.jacoco}/jacoco.exec" />
+
+     
+     <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath path="${lib.dir.jacoco}/jacocoant.jar"/>
+	 </taskdef>    
+
+     <path id="compile.path">        
+         <fileset dir="${lib.dir.junit}">
+             <include name="**/*.jar"/>
+         </fileset>    
+         <pathelement path="${build.path}"/>
+     </path>
+     
+     <path id="junit.lib">
+		<fileset dir="${lib.dir.junit}">
+			<include name="*.jar" />
+		</fileset>
+	 </path>
+     
+     <path id="jacoco.lib">
+		<fileset dir="${lib.dir.jacoco}">
+			<include name="*.jar" />
+		</fileset>
+	 </path>
+ 
+
+     <target name="clean" description="clean">
+         <delete dir="${build.path}"/>
+         <delete dir="${report.dir}"/>
+     </target>
+     
+     
+    <target name="compile">
+		<mkdir dir="${build.path}" />
+        <javac srcdir="${src.path}" destdir="${build.path}"  classpathref="compile.path" includeantruntime="true"/>
+        <javac srcdir="${test.path}" destdir="${build.path}"  classpathref="compile.path" includeantruntime="true"/>
+	</target>
+	
+    <target name="instrument">
+		<mkdir dir="${result.bininstr.dir}" /> 
+		<jacoco:instrument destdir="${result.bininstr.dir}">
+			<fileset dir="${build.path}" includes="**/*.class"/>
+		</jacoco:instrument>
+	</target>
+   
+    <target name="junit" depends="compile">
+        <mkdir dir="${report.dir.junit}" />            
+        <junit printsummary="true" fork="true">        
+             <formatter type="xml" usefile="true"/>        
+             <classpath refid="compile.path"/>                   
+            <batchtest fork="on" todir="${report.dir.junit}" haltonfailure="no">
+                <fileset dir="${build.path}">
+                    <include name="**/*Test.class"/>
+                </fileset>
+            </batchtest>                 
+         </junit>
+         <junitreport todir="${report.dir.junit}">
+             <fileset dir="${report.dir.junit}">
+                 <include name="TEST-*.xml" />
+             </fileset>
+             <report format="frames" todir="${report.dir.junit}" />
+         </junitreport> 
+     </target>
+     
+     
+ 
+ </project>
