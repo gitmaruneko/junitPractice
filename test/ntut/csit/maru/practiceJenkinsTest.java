@@ -34,6 +34,6 @@ public class practiceJenkinsTest {
   
   @Test public void testSub_twoNumEqual_() {
       int tResult = tObj.Sub(-5, -5);    
-      assertEquals(1, tResult);        
+      assertEquals(0, tResult);        
    }
 }
